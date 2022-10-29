@@ -1,4 +1,4 @@
-from types import List
+from typing import List
 
 RED = [255/255, 131/255, 96/255, 1]
 
