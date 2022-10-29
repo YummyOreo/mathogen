@@ -7,6 +7,13 @@ from matplotlib import mathtext, font_manager
 import matplotlib as mpl
 mpl.rcParams["savefig.transparent"] = True
 
+# import numpy as np
+
+"""
+Possibly use multiple threads to render
+"""
+
+# When impl this, check if the current rgba is the rgba that is being set, if it is, then don't do anything
 def set_rgba(context: cairo.Context, rgb):
     context.set_source_rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, rgb[3])
 
@@ -115,6 +122,29 @@ def curve1(context: cairo.Context, x: List[float], y: List[float], color: List[f
     circle(context, x[1], y[1], .05, .05, [0, 0, 0, 1], 2)
     circle(context, x_curve, y_curve, .05, .05, [0, 0, 0, 1], 2)
 
+
+def curve2(context: cairo.Context, pos_start: List[float]):
+    context.set_line_width(0.01)
+
+    x, y = pos_start
+    x1, y1 = 0.4, 0.9
+    x2, y2 = 0.6, 0.1
+    x3, y3 = 0.9, 0.5
+
+    context.move_to(x, y)
+    context.curve_to(x1, y1, x2, y2, x3, y3)
+
+    context.stroke()
+
+    circle(context, x, y, .05, .05, [0, 0, 0, 1], 2)
+
+    circle(context, x1, y1, .05, .05, [0, 0, 0, 1], 2)
+
+    circle(context, x2, y2, .05, .05, [0, 0, 0, 1], 2)
+
+    circle(context, x3, y3, .05, .05, [0, 0, 0, 1], 2)
+
+
 def mathTex(context: cairo.Context, x: float, y: float, width: float, height: float, text: str, color: List[float]):
 
     textFont = font_manager.FontProperties(size=30, family="serif", math_fontfamily="cm")
@@ -139,48 +169,28 @@ def mathTex(context: cairo.Context, x: float, y: float, width: float, height: fl
     # returns this because it will be different than the one inputted as it is dependent on the image created by matplotlib
     return [width_ratio, height_ratio]
 
-def curve2(context: cairo.Context, pos_start: List[float]):
+# The x and y is the intersection point
+def arc1(context: cairo.Context, x: float, y: float, angle_end: float, angle_start: float):
     context.set_line_width(0.01)
-
-    x, y = pos_start
-    x1, y1 = 0.4, 0.9
-    x2, y2 = 0.6, 0.1
-    x3, y3 = 0.9, 0.5
-
-    context.move_to(x, y)
-    context.curve_to(x1, y1, x2, y2, x3, y3)
-
-    context.stroke()
-
-    circle(context, x, y, .05, .05, [0, 0, 0, 1], 2)
-
-    circle(context, x1, y1, .05, .05, [0, 0, 0, 1], 2)
-
-    circle(context, x2, y2, .05, .05, [0, 0, 0, 1], 2)
-
-    circle(context, x3, y3, .05, .05, [0, 0, 0, 1], 2)
-
-    # context.set_source_rgba(1, 0.2, 0.2, 0.6)
-    # context.set_line_width(0.03)
-    # context.move_to(x, y)
-    # context.line_to(x1, y1)
-    # context.move_to(x2, y2)
-    # context.line_to(x3, y3)
-    # context.stroke()
-
-def arc1(context: cairo.Context, x: float, y: float):
-    context.set_line_width(0.01)
+    set_rgba(context, [0, 0, 0, 1])
 
     # The larger the radius, the larger the arch will be
     radius = 0.1
 
-    angle1 = 45.0 * (math.pi / 180.0)  # angles are specified
-    angle2 = 180.0 * (math.pi / 180.0)  # in radians
+    # angle1 = 0 * (math.pi / 180.0)  # angles are specified
+    # angle2 = angle #* (math.pi / 180.0)  # in radians
 
-    context.arc(x, y, radius, angle1, angle2,)
+    # Still need to fix angle3 and find out why
+    # angle1 = 195 * (math.pi/ 180)
+    angle1 = angle_start
+    angle2 = (angle_end + angle1)
+
+    # Change to arc_negitive to do the outside angle
+    # The x and y is the intersection point
+    context.arc(x, y, radius, angle1, angle2)
     context.stroke()
 
-
+    return
     # draws lines based on the arc/angle
     context.set_source_rgba(1, 0.2, 0.2, 0.6)
     context.set_line_width(0.01)
@@ -189,29 +199,99 @@ def arc1(context: cairo.Context, x: float, y: float):
     context.arc(x, y, radius + 0.2, angle1, angle1)
     context.line_to(x, y)
 
-
-    context.stroke()
+    context.arc(x, y, radius + 0.2, 0, 0)
+    context.line_to(x, y)
 
     context.arc(x, y, radius + 0.2, angle2, angle2)
     context.line_to(x, y)
     context.stroke()
 
-def arcTo(context: cairo.Context, x, y, slope_1, slope_2):
-    # Get slopes
+def arcTo(context: cairo.Context, x, y, line_1: List[List[float]], line_2):
     # Get the angle between the 2 lines
-    # Get the starting angle and ending angle needed for the arc
-    # Render the arc
-    arc1(context, x, y)
 
-def line(context: cairo.Context, x: float, y: float, end_x: float, end_y: float):
-    set_rgba(context, [0, 0, 0, 1])
+    angle: float = ang(line_1, line_2)
+
+    # Gets the line 0 (the line were the arc starts from + the starting angle, this goes clockwise)
+    line_0 = [line_1[0], [0.8, line_1[0][-1]]]
+
+    # Gets the angle going clockwise for each
+    # If the closest one is anticlockwise then it will be negitive, and will be given as anticlockwise
+    angle_1_clockwise = clockwise_ang(line_0, line_1)
+    angle_2_clockwise = clockwise_ang(line_0, line_2)
+
+    # both are anticlockwise
+    if angle_1_clockwise < 0 and angle_2_clockwise < 0:
+        # then the furthest one is the smallest one (because it is negitive, the smallest one will be the closest to 0 going clockwise)
+        furthest_angle = angle_1_clockwise if angle_1_clockwise < angle_2_clockwise else angle_2_clockwise
+    # if only one is clockwise
+    elif (angle_1_clockwise < 0 and not angle_2_clockwise < 0) or (not angle_1_clockwise < 0 and angle_2_clockwise < 0):
+        # convert them to their absolute value
+        # then if angle 1 is bigger then angle 2
+        if abs(angle_1_clockwise) > abs(angle_2_clockwise):
+            # angle 1 is the furthest angle
+            furthest_angle = angle_1_clockwise
+        # if angle 2 is bigger than angle 1
+        else:
+            # anle 2 is the furthest angle
+            furthest_angle = angle_2_clockwise
+    # if line 1 is greater than line 2
+    elif abs(angle_1_clockwise) > abs(angle_2_clockwise):
+        # then the angle has to start at line 2 because line 1 is further from 0 going clockwise
+        furthest_angle = angle_2_clockwise
+    # if line 2 is greater
+    else:
+        # then the angle has to start at line 1 because line 2 is further from 0 going clockwise
+        furthest_angle = angle_1_clockwise
+
+    # if the angle is negitive, this means that it is closest, but we have it going anticlockwise, so we must convert it
+    if furthest_angle < 0:
+        furthest_angle += 360
+    start_angle: float = furthest_angle
+
+    # Render the arc
+    arc1(context, x, y, abs(angle * (math.pi/180)), abs(start_angle * (math.pi/180)))
+
+
+def dot(vA, vB):
+    return vA[0]*vB[0]+vA[1]*vB[1]
+
+def ang(lineA: List[List[float]], lineB: List[List[float]]):
+    # Get nicer vector form
+    vA = [(lineA[0][0]-lineA[1][0]), (lineA[0][1]-lineA[1][1])]
+    vB = [(lineB[0][0]-lineB[1][0]), (lineB[0][1]-lineB[1][1])]
+    # Get dot prod
+    dot_prod = dot(vA, vB)
+    # Get magnitudes
+    magA = dot(vA, vA)**0.5
+    magB = dot(vB, vB)**0.5
+    # Get cosine value
+    cos_ = dot_prod/magA/magB
+    # Get angle in radians and then convert to degrees
+    angle = math.acos(dot_prod/magB/magA)
+    # Basically doing angle <- angle mod 360
+    ang_deg = math.degrees(angle)%360
+
+    if ang_deg-180>=0:
+        # As in if statement
+        return 360 - ang_deg
+    else:
+
+        return ang_deg
+
+def clockwise_ang(lineA: List[List[float]], lineB: List[List[float]]):
+    vA = [(lineA[0][0]-lineA[1][0]), (lineA[0][1]-lineA[1][1])]
+    vB = [(lineB[0][0]-lineB[1][0]), (lineB[0][1]-lineB[1][1])]
+    dot_prod = dot(vA, vB)
+    det = vA[0] * vB[1] - vA[1] * vB[0]
+    return math.atan2(det, dot_prod) * (180/math.pi)
+
+def line(context: cairo.Context, x: float, y: float, end_x: float, end_y: float, color: List[float]):
+    set_rgba(context, color)
     context.set_line_width(0.01)
     context.move_to(x, y)
     context.line_to(end_x, end_y)
     context.stroke()
 
-    # The slope of the line
-    return (end_y - y) / (end_x - x)
 """
 Add rotation to everything!
 Everything is drawn on top of each other (if 2 things will take the same space, the last thing will be on top of the other)
@@ -237,8 +317,9 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
 
     # write math in LaTeX
     # this uses matplotlib to render the LaTeX then cairo scales it to the correct scale
-    mathTex(context, 0.1, 0.1, 0.5, 0.5, r"Math $e = mc^2 \hspace{2} \sqrt[3]{8}=8^{\frac{1}{3}}=2$", [82, 182, 209, 1])
-    mathTex(context, 0.2, 0.2, 0.5, 0.5, r"Math $e = mc^2$", [82, 182, 209, 1])
+
+    # mathTex(context, 0.1, 0.1, 0.5, 0.5, r"Math $e = mc^2 \hspace{2} \sqrt[3]{8}=8^{\frac{1}{3}}=2$", [82, 182, 209, 1])
+    # mathTex(context, 0.2, 0.2, 0.5, 0.5, r"Math $e = mc^2$", [82, 182, 209, 1])
 
     # a curve between 2 objects
     """
@@ -251,15 +332,18 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
     """
     # curve2(context, [0.1, 0.5])
 
-    arc1(context, 0.5, 0.1)
+    # arc1(context, 0.5, 0.1)
 
     """
     Gets a point on a line
     You should convert this into a function
     then make a func to join 2 points
     """
-    slope = line(context, 0.1, 0.2, 0.2, 0.3)
-    point_x = 0.2
-    point_y = (slope * point_x) + 0.1
-    circle(context, point_x, point_y, 0.03, 0.03, [82, 182, 209, 1], 2)
-    arcTo(context, 0.1, 0.2, point_x, point_x)
+
+    line_1 = [[0.5, 0.5], [0.7, 0.4]]
+    line_2 = [[0.5, 0.5], [0.4, 0.2]]
+    # line(context, line_1[0][0], line_1[0][1], line_1[1][0], line_1[1][1], [82, 182, 209, 1])
+    # line(context, line_2[0][0], line_2[0][1], line_2[1][0], line_2[1][1], [82, 182, 209, 1])
+
+    # arcTo(context, line_1[0][0], line_1[0][1], line_1, line_2)
+
