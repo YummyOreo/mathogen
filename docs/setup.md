@@ -35,3 +35,4 @@ SVG()
 ```
 This will render "Hello World" in the middle of the SVG, and "From Mathogen" below it.
 
+![](https://github.com/YummyOreo/mathogen/blob/main/docs/images/test.svg)
