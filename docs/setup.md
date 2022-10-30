@@ -34,5 +34,5 @@ class SVG(Surface):
 SVG()
 ```
 This will render "Hello World" in the middle of the SVG, and "From Mathogen" below it.
-
+You can see the result below:
 ![](https://github.com/YummyOreo/mathogen/blob/main/docs/images/test.svg)
