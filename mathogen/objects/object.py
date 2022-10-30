@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import List
 from ..utils.color import BLACK
 import cairo
 
 class Object:
-    def __init__(self, position: List[float], color: List[float], width: Optional[float] = None, height: Optional[float] = None):
+    def __init__(self, position: List[float], color: List[float], width: float = 0, height: float = 0):
         self.color = color
         self.position = position
 
@@ -35,5 +35,5 @@ class Object:
         Gets the middle of a regular object
             A regular object is a object that is a quadrilateral and has a defined height and width
         '''
-        middle = [self.get_x() + (self.get_width() / 2), self.get_y() + (self.get_height() / 2))]
+        middle = [self.get_x() + (self.get_width() / 2), self.get_y() + (self.get_height() / 2)]
         return middle
