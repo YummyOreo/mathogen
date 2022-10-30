@@ -95,6 +95,8 @@ class Text(Object):
 
         self.outline = None
 
+        super().__init__(position, color)
+
     def add_outline(self, outline: TextOutline):
         '''
         Adds a outline to the text. This should be done before rendering
@@ -108,9 +110,8 @@ class Text(Object):
         Renders the text and the outline (if given).
         '''
         context: cairo.Context = surface.context
-        context.save()
 
-        surface.set_color(self.color)
+        super().render(surface)
 
         context.select_font_face(self.font.font, self.font.font_slant, self.font.font_weight)
         context.set_font_size(self.font.font_size)
@@ -126,7 +127,7 @@ class Text(Object):
 
         context.restore()
 
-class TexFont(Object):
+class TexFont:
     def __init__(self, font: str = "serif", size: float = 0.5):
         '''
         Defines the font for a Tex object (Math Text)
@@ -164,6 +165,8 @@ class Tex(Object):
 
         self.color = color
 
+        super().__init__(position, color)
+
     def render(self, surface):
         '''
         Renders the LaTeX
@@ -181,7 +184,9 @@ class Tex(Object):
 
         # scale image and add it
         context: cairo.Context = surface.context
-        context.save()
+
+        super().render(surface)
+
         context.translate(*self.position)
         context.scale(scale_xy, scale_xy)
         context.set_source_surface(image_surface)
