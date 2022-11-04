@@ -96,6 +96,7 @@ class Text(Object):
         self.color = color
 
         self.outline = None
+        self.radians = None
 
         super().__init__(position, color)
 
@@ -108,6 +109,13 @@ class Text(Object):
         self.outline = outline
         return self
 
+    def rotate(self, degrees: Optional[float] = None, radians: Optional[float] = None):
+        if radians:
+            self.radians = radians
+        elif degrees:
+            self.radians = degrees * (math.pi / 180)
+        return self
+
     def render(self, surface):
         '''
         Renders the text and the outline (if given).
@@ -115,6 +123,9 @@ class Text(Object):
         context: cairo.Context = surface.context
 
         super().render(surface)
+
+        if self.radians:
+            context.rotate(self.radians)
 
         context.select_font_face(self.font.font, self.font.font_slant, self.font.font_weight)
         context.set_font_size(self.font.font_size)
@@ -168,7 +179,16 @@ class Tex(Object):
 
         self.color = color
 
+        self.radians = None
+
         super().__init__(position, color)
+
+    def rotate(self, degrees: Optional[float] = None, radians: Optional[float] = None):
+        if radians:
+            self.radians = radians
+        elif degrees:
+            self.radians = degrees * (math.pi / 180)
+        return self
 
     def render(self, surface):
         '''
@@ -191,6 +211,9 @@ class Tex(Object):
         context: cairo.Context = surface.context
 
         super().render(surface)
+
+        if self.radians:
+            context.rotate(self.radians)
 
         context.translate(*self.position)
         context.scale(scale_xy, scale_xy)

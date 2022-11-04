@@ -1,3 +1,4 @@
+import math
 from typing import List, Optional
 
 import cairo
@@ -27,6 +28,7 @@ class Rect(Object):
         self.color = color
 
         self.outline = None
+        self.radians = None
 
         super().__init__(self.position, self.color, self.width, self.height)
 
@@ -34,10 +36,20 @@ class Rect(Object):
         self.outline = outline
         return self
 
+    def rotate(self, degrees: Optional[float] = None, radians: Optional[float] = None):
+        if radians:
+            self.radians = radians
+        elif degrees:
+            self.radians = degrees * (math.pi / 180)
+        return self
+
     def render(self, surface):
         context: cairo.Context = surface.context
 
         context.save()
+
+        if self.radians:
+            context.rotate(self.radians)
 
         if self.outline:
             context.rectangle(self.position[0], self.position[1], self.width, self.height)

@@ -8,5 +8,5 @@ def test_rect():
     RectTest()
 
 if __name__ == '__main__':
-    test_text()
-    # test_rect()
+    # test_text()
+    test_rect()

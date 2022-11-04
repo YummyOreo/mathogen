@@ -13,7 +13,7 @@ class RectTest(Surface):
         self.init(200, 200, "test.svg")
 
         rectangle: Rect = Rect([0.1, 0.1], 0.4, 0.4)
-        rectangle.add_outline(RectOutline())
+        rectangle.add_outline(RectOutline()).rotate(10)
 
         mid: List[float] = [x - 0.05 for x in rectangle.get_middle()]
         rectangle_2: Rect = Rect(mid, 0.1, 0.1, color=BLUE)
