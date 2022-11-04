@@ -2,9 +2,13 @@ __pycache__
 
 *.png
 *.svg
+*.temp
 
 */**/*.png
 */**/*.svg
+*/**/*.temp
+
+/temp/
 
 !*/images/*.png
 !*/images/*.svg

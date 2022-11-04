@@ -292,6 +292,38 @@ def line(context: cairo.Context, x: float, y: float, end_x: float, end_y: float,
     context.line_to(end_x, end_y)
     context.stroke()
 
+def curve_between(context: cairo.Context, pos_1: List[float], pos_2: List[float]):
+    context.set_line_width(0.01)
+    set_rgba(context, [0, 0, 0, 1])
+
+    context.move_to(*pos_1)
+
+    # Gets a point that is perpendicular to the middle of the line
+
+    # Gets the slope that the perpendicular line would be
+    perpendicular_slope = get_perpendicular_slope(pos_1, pos_2)
+
+    # Gets the midpoint of the line
+    mid = get_middle(pos_1, pos_2)
+
+    # gets a point on that perpendicular line
+    perpendicular_point = [mid[0] + perpendicular_slope[0], mid[1] + perpendicular_slope[1]]
+    # Inverted
+    # perpendicular_point = [mid[0] - perpendicular_slope[0], mid[1] - perpendicular_slope[1]]
+
+    context.curve_to(*pos_1, *perpendicular_point, *pos_2)
+    context.stroke()
+    circle(context, perpendicular_point[0], perpendicular_point[1], 0.02, 0.02, [0, 0, 0, 1], 1)
+
+def get_perpendicular_slope(pos_1: List[float], pos_2: List[float]):
+    x_inc = (pos_2[0] - pos_1[0])
+    y_inc = (pos_2[1] - pos_1[1])
+
+    return [y_inc * -1, x_inc]
+
+def get_middle(pos_1: List[float], pos_2: List[float]):
+    return [(pos_1[0] + pos_2[0]) / 2, (pos_1[1] + pos_2[1]) / 2]
+
 """
 Add rotation to everything!
 Everything is drawn on top of each other (if 2 things will take the same space, the last thing will be on top of the other)
@@ -306,14 +338,14 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
     context.scale(1000, 1000)
 
     # for bordered bg
-    #rect(context, 0.01, 0.01, 1 - 0.02, 1 - 0.02, [135, 55, 55, 1], 0.01)
+    # rect(context, 0.01, 0.01, 1 - 0.02, 1 - 0.02, [135, 55, 55, 1], 0.01)
     # for non-bordered bg
-    #rect(context, 0.0, 0.0, 1, 1, [135, 55, 55, 1], 0.01)
+    # rect(context, 0.0, 0.0, 1, 1, [135, 55, 55, 1], 0.01)
 
     circle(context, 0.2, 0.1, 0.03, 0.1, [82, 182, 209, 1], 2)
 
-    text(context, "test1", [0.1, 0.4], [82, 182, 209, 1])
-    text(context, "test 100", [0.1, 0.55], [82, 182, 209, 1])
+    # text(context, "test1", [0.1, 0.4], [82, 182, 209, 1])
+    # text(context, "test 100", [0.1, 0.55], [82, 182, 209, 1])
 
     # write math in LaTeX
     # this uses matplotlib to render the LaTeX then cairo scales it to the correct scale
@@ -340,10 +372,12 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
     then make a func to join 2 points
     """
 
-    line_1 = [[0.5, 0.5], [0.7, 0.4]]
-    line_2 = [[0.5, 0.5], [0.4, 0.2]]
+    # line_1 = [[0.5, 0.5], [0.7, 0.4]]
+    # line_2 = [[0.5, 0.5], [0.4, 0.2]]
     # line(context, line_1[0][0], line_1[0][1], line_1[1][0], line_1[1][1], [82, 182, 209, 1])
     # line(context, line_2[0][0], line_2[0][1], line_2[1][0], line_2[1][1], [82, 182, 209, 1])
 
     # arcTo(context, line_1[0][0], line_1[0][1], line_1, line_2)
+
+    curve_between(context, [0.1, 0.1], [0.2, 0.2])
 

@@ -1,14 +1,20 @@
 from typing import List
 import cairo
 
+from ..utils.temp import delete_temp
+
 class Surface:
+    def __init__(self):
+        self.construct()
+        delete_temp()
+
     '''
     Inits the surface,
     - scales the context to the width and height
     - sets the color to black
     - saves the context and surface
     '''
-    def __init__(self, width: int, height: int, filename: str):
+    def init(self, width: int, height: int, filename: str):
         self.width = width
         self.height = height
         self.scaled_width = width
@@ -21,6 +27,9 @@ class Surface:
 
         self.color = [0, 0, 0, 1]
         self.context.set_source_rgba(*self.color)
+
+    def construct(self):
+        pass
 
     # Sets the color to a given color
     def set_color(self, color: List[float]):

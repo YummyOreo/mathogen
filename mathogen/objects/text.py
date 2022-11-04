@@ -3,6 +3,8 @@ import cairo
 
 from .object import Object
 from ..utils.color import BLACK, BLUE
+from ..utils.temp import create_temp
+from ..constants import TEMP_FILE_FOLDER
 
 import math
 from matplotlib import mathtext, font_manager
@@ -171,10 +173,12 @@ class Tex(Object):
         '''
         Renders the LaTeX
         '''
-        textFont = font_manager.FontProperties(size=30, family=self.font.font, math_fontfamily="cm")
-        mathtext.math_to_image(self.text, "mathTex.png", prop=textFont, dpi=300, format="png", color=self.color)
+        create_temp()
 
-        image_surface = cairo.ImageSurface.create_from_png("mathTex.png")
+        textFont = font_manager.FontProperties(size=30, family=self.font.font, math_fontfamily="cm")
+        mathtext.math_to_image(self.text, f"{TEMP_FILE_FOLDER}tex.temp", prop=textFont, dpi=300, format="png", color=self.color)
+
+        image_surface = cairo.ImageSurface.create_from_png(f"{TEMP_FILE_FOLDER}tex.temp")
         img_height = image_surface.get_height()
         img_width = image_surface.get_width()
 
