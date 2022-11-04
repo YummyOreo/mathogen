@@ -106,6 +106,7 @@ class Text(Object):
             outline: The outline objcet to be used when rendering, see TextOutline
         '''
         self.outline = outline
+        return self
 
     def render(self, surface):
         '''

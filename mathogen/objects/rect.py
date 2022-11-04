@@ -32,12 +32,12 @@ class Rect(Object):
 
     def add_outline(self, outline: RectOutline):
         self.outline = outline
+        return self
 
     def render(self, surface):
         context: cairo.Context = surface.context
 
         context.save()
-
 
         if self.outline:
             context.rectangle(self.position[0], self.position[1], self.width, self.height)
