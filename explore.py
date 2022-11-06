@@ -307,9 +307,9 @@ def curve_between(context: cairo.Context, pos_1: List[float], pos_2: List[float]
     mid = get_middle(pos_1, pos_2)
 
     # gets a point on that perpendicular line
-    perpendicular_point = [mid[0] + perpendicular_slope[0], mid[1] + perpendicular_slope[1]]
+    # perpendicular_point = [mid[0] + perpendicular_slope[0], mid[1] + perpendicular_slope[1]]
     # Inverted
-    # perpendicular_point = [mid[0] - perpendicular_slope[0], mid[1] - perpendicular_slope[1]]
+    perpendicular_point = [mid[0] - perpendicular_slope[0], mid[1] - perpendicular_slope[1]]
 
     context.curve_to(*pos_1, *perpendicular_point, *pos_2)
     context.stroke()
@@ -323,6 +323,49 @@ def get_perpendicular_slope(pos_1: List[float], pos_2: List[float]):
 
 def get_middle(pos_1: List[float], pos_2: List[float]):
     return [(pos_1[0] + pos_2[0]) / 2, (pos_1[1] + pos_2[1]) / 2]
+
+def round_rect(context: cairo.Context, position: List[float], width: float, height: float, roundness: float):
+    point_1 = position
+    point_2 = [position[0] + width, position[1]]
+    point_3 = [position[0], position[1] + height]
+    point_4 = [position[0] + width, position[1] + height]
+
+    point_mod_1 = [point_1[0] + roundness, point_1[1] + roundness]
+    point_mod_2 = [point_2[0] - roundness, point_2[1] + roundness]
+    point_mod_3 = [point_3[0] + roundness, point_3[1] - roundness]
+    point_mod_4 = [point_4[0] - roundness, point_4[1] - roundness]
+
+    easycircle(context, point_mod_1, [255, 0, 0, 1])
+    easycircle(context, point_mod_2, [255, 0, 0, 1])
+    easycircle(context, point_mod_3, [255, 0, 0, 1])
+    easycircle(context, point_mod_4, [255, 0, 0, 1])
+    easycircle(context, point_1, [0, 0, 0, 1])
+    easycircle(context, point_2, [0, 0, 0, 1])
+    easycircle(context, point_3, [0, 0, 0, 1])
+    easycircle(context, point_4, [0, 0, 0, 1])
+
+    line(context, point_1[0], point_mod_1[1], point_3[0], point_mod_3[1], [0, 0, 0, 1])
+    line(context, point_2[0], point_mod_2[1], point_4[0], point_mod_4[1], [0, 0, 0, 1])
+
+    line(context, point_mod_1[0], point_1[1], point_mod_2[0], point_2[1], [0, 0, 0, 1])
+    line(context, point_mod_3[0], point_3[1], point_mod_4[0], point_4[1], [0, 0, 0, 1])
+
+
+    rect_curve(context, [point_1[0], point_mod_1[1]], point_1, [point_mod_1[0], point_1[1]])
+    rect_curve(context, [point_2[0], point_mod_2[1]], point_2, [point_mod_2[0], point_2[1]])
+    rect_curve(context, [point_3[0], point_mod_3[1]], point_3, [point_mod_3[0], point_3[1]])
+    rect_curve(context, [point_4[0], point_mod_4[1]], point_4, [point_mod_4[0], point_4[1]])
+    # context.move_to(point_1[0], point_mod_1[1])
+    # context.curve_to(point_1[0], point_mod_1[1], point_1[0], point_1[1], point_mod_1[0], point_1[1])
+    # context.stroke()
+
+def rect_curve(context, pos_1, pos_2, pos_3):
+    context.move_to(pos_1[0], pos_1[1])
+    context.curve_to(pos_1[0], pos_1[1], pos_2[0], pos_2[1], pos_3[0], pos_3[1])
+    context.stroke()
+
+def easycircle(context: cairo.Context, position, color):
+    circle(context, position[0], position[1], 0.01, 0.01, color, 0.03)
 
 """
 Add rotation to everything!
@@ -342,7 +385,7 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
     # for non-bordered bg
     # rect(context, 0.0, 0.0, 1, 1, [135, 55, 55, 1], 0.01)
 
-    circle(context, 0.2, 0.1, 0.03, 0.1, [82, 182, 209, 1], 2)
+    # circle(context, 0.2, 0.1, 0.03, 0.1, [82, 182, 209, 1], 2)
 
     # text(context, "test1", [0.1, 0.4], [82, 182, 209, 1])
     # text(context, "test 100", [0.1, 0.55], [82, 182, 209, 1])
@@ -379,5 +422,7 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
 
     # arcTo(context, line_1[0][0], line_1[0][1], line_1, line_2)
 
-    curve_between(context, [0.1, 0.1], [0.2, 0.2])
+    # curve_between(context, [0.1, 0.1], [0.2, 0.2])
+
+    round_rect(context, [0.5, 0.5], 0.2, 0.3, 0.01)
 
