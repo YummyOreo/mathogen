@@ -57,7 +57,7 @@ def rect(context: cairo.Context, x: float, y: float, width: float, height: float
     # The inner part, black
     context.rectangle(x, y, width, height)
     # Sets the color to black
-    set_rgba(context, [0, 0, 0, 1])
+    set_rgba(context, color)
     # fills it in
     context.fill()
     context.restore()
@@ -287,7 +287,7 @@ def clockwise_ang(lineA: List[List[float]], lineB: List[List[float]]):
 
 def line(context: cairo.Context, x: float, y: float, end_x: float, end_y: float, color: List[float]):
     set_rgba(context, color)
-    context.set_line_width(0.01)
+    context.set_line_width(0.005)
     context.move_to(x, y)
     context.line_to(end_x, end_y)
     context.stroke()
@@ -324,48 +324,59 @@ def get_perpendicular_slope(pos_1: List[float], pos_2: List[float]):
 def get_middle(pos_1: List[float], pos_2: List[float]):
     return [(pos_1[0] + pos_2[0]) / 2, (pos_1[1] + pos_2[1]) / 2]
 
-def round_rect(context: cairo.Context, position: List[float], width: float, height: float, roundness: float):
-    point_1 = position
-    point_2 = [position[0] + width, position[1]]
-    point_3 = [position[0], position[1] + height]
-    point_4 = [position[0] + width, position[1] + height]
+# Better rounded rectangle
+# Replace it
+def rect_curve(context: cairo.Context, pos: List[float], width: float, height: float, curve: float, fill_color: List[float], outline_color: List[float]):
+    context.set_line_width(0.003)
+    # a custom shape, that could be wrapped in a function
+    x0 = pos[0]
+    y0 = pos[1]
+    rect_width =  width
+    rect_height = height
+    radius = curve  # and an approximate curvature radius
 
-    point_mod_1 = [point_1[0] + roundness, point_1[1] + roundness]
-    point_mod_2 = [point_2[0] - roundness, point_2[1] + roundness]
-    point_mod_3 = [point_3[0] + roundness, point_3[1] - roundness]
-    point_mod_4 = [point_4[0] - roundness, point_4[1] - roundness]
+    x1 = x0 + rect_width
+    y1 = y0 + rect_height
 
-    easycircle(context, point_mod_1, [255, 0, 0, 1])
-    easycircle(context, point_mod_2, [255, 0, 0, 1])
-    easycircle(context, point_mod_3, [255, 0, 0, 1])
-    easycircle(context, point_mod_4, [255, 0, 0, 1])
-    easycircle(context, point_1, [0, 0, 0, 1])
-    easycircle(context, point_2, [0, 0, 0, 1])
-    easycircle(context, point_3, [0, 0, 0, 1])
-    easycircle(context, point_4, [0, 0, 0, 1])
+    if rect_width / 2 < radius:
+        if rect_height / 2 < radius:
+            context.move_to(x0, (y0 + y1) / 2)
+            context.curve_to(x0, y0, x0, y0, (x0 + x1) / 2, y0)
+            context.curve_to(x1, y0, x1, y0, x1, (y0 + y1) / 2)
+            context.curve_to(x1, y1, x1, y1, (x1 + x0) / 2, y1)
+            context.curve_to(x0, y1, x0, y1, x0, (y0 + y1) / 2)
+        else:
+            context.move_to(x0, y0 + radius)
+            context.curve_to(x0, y0, x0, y0, (x0 + x1) / 2, y0)
+            context.curve_to(x1, y0, x1, y0, x1, y0 + radius)
+            context.line_to(x1, y1 - radius)
+            context.curve_to(x1, y1, x1, y1, (x1 + x0) / 2, y1)
+            context.curve_to(x0, y1, x0, y1, x0, y1 - radius)
+    else:
+        if rect_height / 2 < radius:
+            context.move_to(x0, (y0 + y1) / 2)
+            context.curve_to(x0, y0, x0, y0, x0 + radius, y0)
+            context.line_to(x1 - radius, y0)
+            context.curve_to(x1, y0, x1, y0, x1, (y0 + y1) / 2)
+            context.curve_to(x1, y1, x1, y1, x1 - radius, y1)
+            context.line_to(x0 + radius, y1)
+            context.curve_to(x0, y1, x0, y1, x0, (y0 + y1) / 2)
+        else:
+            context.move_to(x0, y0 + radius)
+            context.curve_to(x0, y0, x0, y0, x0 + radius, y0)
+            context.line_to(x1 - radius, y0)
+            context.curve_to(x1, y0, x1, y0, x1, y0 + radius)
+            context.line_to(x1, y1 - radius)
+            context.curve_to(x1, y1, x1, y1, x1 - radius, y1)
+            context.line_to(x0 + radius, y1)
+            context.curve_to(x0, y1, x0, y1, x0, y1 - radius)
 
-    line(context, point_1[0], point_mod_1[1], point_3[0], point_mod_3[1], [0, 0, 0, 1])
-    line(context, point_2[0], point_mod_2[1], point_4[0], point_mod_4[1], [0, 0, 0, 1])
+    context.close_path()
 
-    line(context, point_mod_1[0], point_1[1], point_mod_2[0], point_2[1], [0, 0, 0, 1])
-    line(context, point_mod_3[0], point_3[1], point_mod_4[0], point_4[1], [0, 0, 0, 1])
-
-
-    rect_curve(context, [point_1[0], point_mod_1[1]], point_1, [point_mod_1[0], point_1[1]])
-    rect_curve(context, [point_2[0], point_mod_2[1]], point_2, [point_mod_2[0], point_2[1]])
-    rect_curve(context, [point_3[0], point_mod_3[1]], point_3, [point_mod_3[0], point_3[1]])
-    rect_curve(context, [point_4[0], point_mod_4[1]], point_4, [point_mod_4[0], point_4[1]])
-    # context.move_to(point_1[0], point_mod_1[1])
-    # context.curve_to(point_1[0], point_mod_1[1], point_1[0], point_1[1], point_mod_1[0], point_1[1])
-    # context.stroke()
-
-def rect_curve(context, pos_1, pos_2, pos_3):
-    context.move_to(pos_1[0], pos_1[1])
-    context.curve_to(pos_1[0], pos_1[1], pos_2[0], pos_2[1], pos_3[0], pos_3[1])
+    set_rgba(context, fill_color)
+    context.fill_preserve()
+    set_rgba(context, outline_color)
     context.stroke()
-
-def easycircle(context: cairo.Context, position, color):
-    circle(context, position[0], position[1], 0.01, 0.01, color, 0.03)
 
 """
 Add rotation to everything!
@@ -424,5 +435,5 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
 
     # curve_between(context, [0.1, 0.1], [0.2, 0.2])
 
-    round_rect(context, [0.5, 0.5], 0.2, 0.3, 0.01)
+    rect_curve(context, [0.3, 0.6], 0.2, 0.2, 0.05, [0, 0, 0, 1], [244, 255, 0, 1])
 

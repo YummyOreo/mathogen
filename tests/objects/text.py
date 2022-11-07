@@ -23,7 +23,7 @@ class TextTest(Surface):
         This makes a Text object
         This should render the words "This is a text"
 
-        This also rotates it 10 radians
+        this also rotates it 10 radians
         '''
         text = Text([0.5, 0.5], "This is a test").rotate(10)
         '''
