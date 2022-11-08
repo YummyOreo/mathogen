@@ -18,6 +18,7 @@ def set_rgba(context: cairo.Context, rgb):
     context.set_source_rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, rgb[3])
 
 # add rotate, see circle
+# DONE
 def text(context, text: str, pos: List[float], color: List[float]):
     context.save()
     # sets text stuff
@@ -41,6 +42,7 @@ def text(context, text: str, pos: List[float], color: List[float]):
     context.restore()
 
 # add rotate, see circle
+# DONE
 def rect(context: cairo.Context, x: float, y: float, width: float, height: float, color: List[float], outline_width: float):
     context.save()
     # xColor border
@@ -97,6 +99,7 @@ def circle(context: cairo.Context, x: float, y: float, width: float, height: flo
     context.stroke()
     context.restore()
 
+# DON'T DO
 def curve1(context: cairo.Context, x: List[float], y: List[float], color: List[float], invert: bool, multi_x: float, multi_y: float):
     context.set_line_width(0.01)
     set_rgba(context, color)
@@ -122,7 +125,7 @@ def curve1(context: cairo.Context, x: List[float], y: List[float], color: List[f
     circle(context, x[1], y[1], .05, .05, [0, 0, 0, 1], 2)
     circle(context, x_curve, y_curve, .05, .05, [0, 0, 0, 1], 2)
 
-
+# DON'T DO
 def curve2(context: cairo.Context, pos_start: List[float]):
     context.set_line_width(0.01)
 
@@ -145,6 +148,7 @@ def curve2(context: cairo.Context, pos_start: List[float]):
     circle(context, x3, y3, .05, .05, [0, 0, 0, 1], 2)
 
 
+# DONE
 def mathTex(context: cairo.Context, x: float, y: float, width: float, height: float, text: str, color: List[float]):
 
     textFont = font_manager.FontProperties(size=30, family="serif", math_fontfamily="cm")
@@ -170,6 +174,7 @@ def mathTex(context: cairo.Context, x: float, y: float, width: float, height: fl
     return [width_ratio, height_ratio]
 
 # The x and y is the intersection point
+# DONT DO
 def arc1(context: cairo.Context, x: float, y: float, angle_end: float, angle_start: float):
     context.set_line_width(0.01)
     set_rgba(context, [0, 0, 0, 1])
@@ -188,22 +193,6 @@ def arc1(context: cairo.Context, x: float, y: float, angle_end: float, angle_sta
     # Change to arc_negitive to do the outside angle
     # The x and y is the intersection point
     context.arc(x, y, radius, angle1, angle2)
-    context.stroke()
-
-    return
-    # draws lines based on the arc/angle
-    context.set_source_rgba(1, 0.2, 0.2, 0.6)
-    context.set_line_width(0.01)
-
-    # defindes te arch for the line to start and end at
-    context.arc(x, y, radius + 0.2, angle1, angle1)
-    context.line_to(x, y)
-
-    context.arc(x, y, radius + 0.2, 0, 0)
-    context.line_to(x, y)
-
-    context.arc(x, y, radius + 0.2, angle2, angle2)
-    context.line_to(x, y)
     context.stroke()
 
 def arcTo(context: cairo.Context, x, y, line_1: List[List[float]], line_2):
@@ -285,6 +274,7 @@ def clockwise_ang(lineA: List[List[float]], lineB: List[List[float]]):
     det = vA[0] * vB[1] - vA[1] * vB[0]
     return math.atan2(det, dot_prod) * (180/math.pi)
 
+# DONE
 def line(context: cairo.Context, x: float, y: float, end_x: float, end_y: float, color: List[float]):
     set_rgba(context, color)
     context.set_line_width(0.005)
@@ -327,8 +317,7 @@ def get_perpendicular_slope(pos_1: List[float], pos_2: List[float]):
 def get_middle(pos_1: List[float], pos_2: List[float]):
     return [(pos_1[0] + pos_2[0]) / 2, (pos_1[1] + pos_2[1]) / 2]
 
-# Better rounded rectangle
-# Replace it
+# DONE
 def rect_curve(context: cairo.Context, pos: List[float], width: float, height: float, curve: float, fill_color: List[float], outline_color: List[float]):
     context.set_line_width(0.003)
     # a custom shape, that could be wrapped in a function
@@ -431,7 +420,7 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
 
     # line_1 = [[0.5, 0.5], [0.7, 0.4]]
     # line_2 = [[0.5, 0.5], [0.4, 0.2]]
-    line(context, line_1[0][0], line_1[0][1], line_1[1][0], line_1[1][1], [82, 182, 209, 1])
+    # line(context, line_1[0][0], line_1[0][1], line_1[1][0], line_1[1][1], [82, 182, 209, 1])
     # line(context, line_2[0][0], line_2[0][1], line_2[1][0], line_2[1][1], [82, 182, 209, 1])
 
     # arcTo(context, line_1[0][0], line_1[0][1], line_1, line_2)
