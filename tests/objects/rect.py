@@ -1,9 +1,9 @@
 import sys
+sys.path.append("..")
+
+from mathogen.mathogen import Surface, Rect, RectOutline, BLUE, RoundRect
+
 from typing import List
-
-sys.path.append("../")
-
-from mathogen.mathogen import Surface, Rect, RectOutline, BLUE, RoundRectOutline, RoundRect
 
 '''
 Test for the creating, and rendering of a rectangle
@@ -16,8 +16,9 @@ class RectTest(Surface):
         rectangle.add_outline(RectOutline()).rotate(10)
 
         mid: List[float] = [x - 0.05 for x in rectangle.get_middle()]
-        rectangle_2: Rect = RoundRect(mid, 0.1, 0.1, 0.5, color=BLUE)
-        # rectangle_2.add_outline()
+        rectangle_2: RoundRect = RoundRect(mid, 0.1, 0.1, 0.5, color=BLUE)
+        rectangle_2.rotate(19)
+        rectangle_2.add_outline()
 
         '''
         Renders both

@@ -32,7 +32,9 @@ class Rect(Object):
 
         super().__init__(self.position, self.color, self.width, self.height)
 
-    def add_outline(self, outline: RectOutline):
+    def add_outline(self, outline: Optional[RectOutline] = None):
+        if not outline:
+            outline = RectOutline()
         self.outline = outline
         return self
 
@@ -92,10 +94,20 @@ class RoundRect(Object):
 
         self.outline = outline
 
+    def rotate(self, degrees: Optional[float] = None, radians: Optional[float] = None):
+        if radians:
+            self.radians = radians
+        elif degrees:
+            self.radians = degrees * (math.pi / 180)
+        return self
+
     def render(self, surface):
         context: cairo.Context = surface.context
 
         super().render(surface)
+
+        if self.radians:
+            context.rotate(self.radians)
 
         x = self.position[0]
         x1 = self.position[0] + self.width

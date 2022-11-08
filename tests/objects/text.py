@@ -1,8 +1,7 @@
 import sys
+sys.path.append("..")
 
-sys.path.append("../")
-
-from mathogen.mathogen import Surface, Text, Font, TextOutline, Tex, TexFont
+from mathogen.mathogen import Surface, Text, TextOutline, Tex, TexFont
 
 '''
 Test for the creating, and rendering of text and LaTeX

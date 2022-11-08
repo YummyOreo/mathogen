@@ -292,7 +292,7 @@ def line(context: cairo.Context, x: float, y: float, end_x: float, end_y: float,
     context.line_to(end_x, end_y)
     context.stroke()
 
-def curve_between(context: cairo.Context, pos_1: List[float], pos_2: List[float]):
+def curve_between(context: cairo.Context, pos_1: List[float], pos_2: List[float], magnitude: float, inverted: bool = False):
     context.set_line_width(0.01)
     set_rgba(context, [0, 0, 0, 1])
 
@@ -306,10 +306,13 @@ def curve_between(context: cairo.Context, pos_1: List[float], pos_2: List[float]
     # Gets the midpoint of the line
     mid = get_middle(pos_1, pos_2)
 
-    # gets a point on that perpendicular line
-    # perpendicular_point = [mid[0] + perpendicular_slope[0], mid[1] + perpendicular_slope[1]]
-    # Inverted
-    perpendicular_point = [mid[0] - perpendicular_slope[0], mid[1] - perpendicular_slope[1]]
+    x_slope = perpendicular_slope[0] * magnitude
+    y_slope = perpendicular_slope[1] * magnitude
+    if inverted:
+        x_slope = x_slope * -1
+        y_slope = y_slope * -1
+
+    perpendicular_point = [mid[0] + x_slope, mid[1] + y_slope]
 
     context.curve_to(*pos_1, *perpendicular_point, *pos_2)
     context.stroke()
@@ -428,12 +431,11 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
 
     # line_1 = [[0.5, 0.5], [0.7, 0.4]]
     # line_2 = [[0.5, 0.5], [0.4, 0.2]]
-    # line(context, line_1[0][0], line_1[0][1], line_1[1][0], line_1[1][1], [82, 182, 209, 1])
+    line(context, line_1[0][0], line_1[0][1], line_1[1][0], line_1[1][1], [82, 182, 209, 1])
     # line(context, line_2[0][0], line_2[0][1], line_2[1][0], line_2[1][1], [82, 182, 209, 1])
 
     # arcTo(context, line_1[0][0], line_1[0][1], line_1, line_2)
 
-    # curve_between(context, [0.1, 0.1], [0.2, 0.2])
+    curve_between(context, [0.1, 0.1], [1, 0.2], 0.5)
 
-    rect_curve(context, [0.3, 0.6], 0.2, 0.2, 0.05, [0, 0, 0, 1], [244, 255, 0, 1])
-
+    # rect_curve(context, [0.3, 0.6], 0.2, 0.2, 0.05, [0, 0, 0, 1], [244, 255, 0, 1])
