@@ -30,6 +30,14 @@ class Object:
     def get_height(self):
         return self.height
 
+    def set_width(self, width: float):
+        self.width = width
+        return self
+
+    def set_height(self, height: float):
+        self.height = height
+        return self
+
     def get_middle(self):
         '''
         Gets the middle of a regular object

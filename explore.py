@@ -282,6 +282,7 @@ def line(context: cairo.Context, x: float, y: float, end_x: float, end_y: float,
     context.line_to(end_x, end_y)
     context.stroke()
 
+# DONE
 def curve_between(context: cairo.Context, pos_1: List[float], pos_2: List[float], magnitude: float, inverted: bool = False):
     context.set_line_width(0.01)
     set_rgba(context, [0, 0, 0, 1])

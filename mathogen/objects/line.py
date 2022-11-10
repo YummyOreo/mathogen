@@ -1,4 +1,5 @@
 from typing import List
+import math
 
 from .object import Object, cairo
 from ..utils.color import BLACK
@@ -12,6 +13,7 @@ class Line(Object):
         self.color = color
 
         super().__init__(self.pos_start, self.color)
+        super().set_width(width)
 
     def render(self, surface):
         context: cairo.Context = surface.context
@@ -19,13 +21,24 @@ class Line(Object):
         super().render(surface)
         context.set_line_width(self.width)
 
-        context.move_to(*self.pos_start)
-        context.line_to(*self.pos_end)
+        context.move_to(self.pos_start[0], self.pos_start[1])
+        context.line_to(self.pos_end[0], self.pos_end[1])
 
         context.stroke()
         context.restore()
 
-class CurveBetween(Object):
+    def get_slope(self):
+        if (self.pos_start[0] - self.pos_end[0]) == 0:
+            return math.inf
+        return (self.pos_start[1] - self.pos_end[1]) / (self.pos_start[0] - self.pos_end[0])
+
+    def get_middle(self):
+        return [(self.pos_start[0] + self.pos_end[0]) / 2, (self.pos_start[1] + self.pos_end[1]) / 2]
+
+    def super_render(self, surface):
+        super().render(surface)
+
+class CurveBetween(Line):
     def __init__(self, position_start: List[float], position_end: List[float], magnitude: float = 0.5, color: List[float] = BLACK, width: float = 0.01):
         self.pos_start = position_start
         self.pos_end = position_end
@@ -35,35 +48,37 @@ class CurveBetween(Object):
 
         self.color = color
 
-        super().__init__(self.pos_start, self.color)
+        super().__init__(position_start, position_end, self.color, self.width)
 
-    def get_perpendicular_slope(self, position_1: List[float], position_2: List[float]) -> List[float]:
-        x_inc = (position_2[0] - position_1[0])
-        y_inc = (position_2[1] - position_1[1])
-
-        return [y_inc * -1, x_inc]
-
-    def get_middle(self, pos_1: List[float], pos_2: List[float]):
-        return [(pos_1[0] + pos_2[0]) / 2, (pos_1[1] + pos_2[1]) / 2]
+    def get_perpendicular_slope(self):
+        slope = self.get_slope()
+        if slope == 0:
+            return math.inf
+        elif not math.isfinite(slope):
+            return 0
+        return -1/slope
 
     def render(self, surface):
         context: cairo.Context = surface.context
 
         super().render(surface)
+        super().super_render(surface)
 
         context.set_line_width(self.width)
         context.move_to(*self.pos_start)
 
-        perpendicular_slope = self.get_perpendicular_slope(self.pos_start, self.pos_end)
+        perpendicular_slope = self.get_perpendicular_slope()
 
-        middle = self.get_middle(self.pos_start, self.pos_end)
+        middle = self.get_middle()
 
-        x_inc = perpendicular_slope[0] * self.magnitude
-        y_inc = perpendicular_slope[1] * self.magnitude
+        if not math.isfinite(perpendicular_slope):
+            point = [middle[0], middle[1] + self.magnitude]
+        elif perpendicular_slope == 0:
+            point = [middle[0] + self.magnitude, middle[1] + (perpendicular_slope * self.magnitude)]
+        else:
+            point = [middle[0] + (perpendicular_slope * self.magnitude), middle[1] + self.magnitude]
 
-        point = [middle[0] + x_inc, middle[1] + y_inc]
-
-        context.curve_to(*self.pos_start, *point, *self.pos_end)
+        context.curve_to(self.pos_start[0], self.pos_start[1], point[0], point[1], self.pos_end[0], self.pos_end[1])
         context.stroke()
 
         context.restore()
