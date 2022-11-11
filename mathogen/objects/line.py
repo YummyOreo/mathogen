@@ -18,7 +18,9 @@ class Line(Object):
     def render(self, surface):
         context: cairo.Context = surface.context
 
-        super().render(surface)
+        context.save()
+        surface.set_color(self.color)
+
         context.set_line_width(self.width)
 
         context.move_to(self.pos_start[0], self.pos_start[1])
@@ -35,11 +37,8 @@ class Line(Object):
     def get_middle(self):
         return [(self.pos_start[0] + self.pos_end[0]) / 2, (self.pos_start[1] + self.pos_end[1]) / 2]
 
-    def super_render(self, surface):
-        super().render(surface)
-
 class CurveBetween(Line):
-    def __init__(self, position_start: List[float], position_end: List[float], magnitude: float = 0.5, color: List[float] = BLACK, width: float = 0.01):
+    def __init__(self, position_start: List[float], position_end: List[float], magnitude: float = 0.5, color: List[float] = BLACK, width: float = 0.005):
         self.pos_start = position_start
         self.pos_end = position_end
 
@@ -61,8 +60,8 @@ class CurveBetween(Line):
     def render(self, surface):
         context: cairo.Context = surface.context
 
-        super().render(surface)
-        super().super_render(surface)
+        context.save()
+        surface.set_color(self.color)
 
         context.set_line_width(self.width)
         context.move_to(*self.pos_start)

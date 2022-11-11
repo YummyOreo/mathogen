@@ -122,7 +122,8 @@ class Text(Object):
         '''
         context: cairo.Context = surface.context
 
-        super().render(surface)
+        context.save()
+        surface.set_color(self.color)
 
         if self.radians:
             context.rotate(self.radians)
@@ -210,7 +211,8 @@ class Tex(Object):
         # scale image and add it
         context: cairo.Context = surface.context
 
-        super().render(surface)
+        context.save()
+        surface.set_color(self.color)
 
         if self.radians:
             context.rotate(self.radians)

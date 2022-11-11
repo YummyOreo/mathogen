@@ -104,7 +104,8 @@ class RoundRect(Object):
     def render(self, surface):
         context: cairo.Context = surface.context
 
-        super().render(surface)
+        context.save()
+        surface.set_color(self.color)
 
         if self.radians:
             context.rotate(self.radians)
