@@ -7,18 +7,20 @@ from .object import Object
 from ..utils.color import BLACK, BLUE
 
 class CircleOutline:
-    def __init__(self, color: List[float] = BLUE, width: float = 0.01):
+    def __init__(self, color: List[float] = BLUE, width: float = 0.3):
         self.width = width
         self.color = color
 
-    def render(self, surface, circle):
+    def render(self, surface):
         context: cairo.Context = surface.context
 
         context.save()
         surface.set_color(self.color)
+
         context.identity_matrix()
 
-        context.set_line_width(self.width * ((circle.width + circle.height) * 10))
+        context.set_line_width(self.width)
+
 
         context.stroke()
         context.restore()
@@ -70,4 +72,4 @@ class Circle(Object):
         context.restore()
 
         if self.outline:
-            self.outline.render(surface, self)
+            self.outline.render(surface)

@@ -10,10 +10,7 @@ class Object:
         self.width, self.height = width, height
 
     def render(self, surface):
-        context: cairo.Context = surface.context
-        context.save()
-
-        surface.set_color(self.color)
+        pass
 
     def get_x(self):
         return self.position[0]

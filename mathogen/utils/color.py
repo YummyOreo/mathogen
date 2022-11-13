@@ -32,3 +32,17 @@ def create_color(red, green, blue, alfa=1) -> List[float]:
     Converts conventional RGBA to RGBA that is usable for this Lib
     '''
     return [red/255, green/255, blue/255, alfa]
+
+def change_color(color: List[float], red = 0, green = 0, blue = 0, alfa = 0):
+    changed = color.copy()
+    red = red/255
+    green = green/255
+    blue = blue/255
+    alfa = alfa/255
+
+    changed[0] += red
+    changed[1] += green
+    changed[2] += blue
+    changed[3] += alfa
+
+    return changed

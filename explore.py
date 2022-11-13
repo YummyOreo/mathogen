@@ -64,6 +64,7 @@ def rect(context: cairo.Context, x: float, y: float, width: float, height: float
     context.fill()
     context.restore()
 
+# DONE
 def circle(context: cairo.Context, x: float, y: float, width: float, height: float, color: List[float], outline_width: float):
 
     # starts a "container"

@@ -1,7 +1,8 @@
 from typing import List
 import math
+import cairo
 
-from .object import Object, cairo
+from .object import Object
 from ..utils.color import BLACK
 
 class Line(Object):
@@ -33,6 +34,9 @@ class Line(Object):
         if (self.pos_start[0] - self.pos_end[0]) == 0:
             return math.inf
         return (self.pos_start[1] - self.pos_end[1]) / (self.pos_start[0] - self.pos_end[0])
+
+    def get_diff(self) -> List[float]:
+        return [self.pos_start[0] - self.pos_end[0], self.pos_start[1] - self.pos_end[1]]
 
     def get_middle(self):
         return [(self.pos_start[0] + self.pos_end[0]) / 2, (self.pos_start[1] + self.pos_end[1]) / 2]
