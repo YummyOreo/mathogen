@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 import math
 import cairo
 
@@ -6,15 +6,25 @@ from .object import Object
 from ..utils.color import BLACK
 
 class Line(Object):
-    def __init__(self, position_start: List[float], position_end: List[float], color: List[float] = BLACK, width: float = 0.005):
-        self.pos_start = position_start
-        self.pos_end = position_end
-        self.width = width
+    def __init__(self, user_options):
+        '''
+        user_options = {
+                "position_start": List[float],
+                "position_end": List[float],
+                "width": float = 0.006,
+                "position_end": List[float] = BLACK
+                }
+        '''
+        options: Any = {"color": BLACK, "width": 0.005}
+        options.update(user_options)
 
-        self.color = color
+        self.pos_start = options["position_start"]
+        self.pos_end = options["position_end"]
+        self.width = options["width"]
 
-        super().__init__(self.pos_start, self.color)
-        super().set_width(width)
+        self.color = options["color"]
+
+        super().__init__(self.pos_start, self.color, self.width)
 
     def render(self, surface):
         context: cairo.Context = surface.context
@@ -42,16 +52,28 @@ class Line(Object):
         return [(self.pos_start[0] + self.pos_end[0]) / 2, (self.pos_start[1] + self.pos_end[1]) / 2]
 
 class CurveBetween(Line):
-    def __init__(self, position_start: List[float], position_end: List[float], magnitude: float = 0.5, color: List[float] = BLACK, width: float = 0.005):
-        self.pos_start = position_start
-        self.pos_end = position_end
+    def __init__(self, user_options):
+        '''
+        user_options = {
+                "position_start": List[float],
+                "position_end": List[float],
+                "width": float = 0.005,
+                "color": List[float] = BLACK,
+                magnitude: float = 0.5
+                }
+        '''
+        options: Any = {"color": BLACK, "width": 0.005, "magnitude": 0.5}
+        options.update(user_options)
 
-        self.magnitude = magnitude
-        self.width = width
+        self.pos_start = options["position_start"]
+        self.pos_end = options["position_end"]
 
-        self.color = color
+        self.magnitude = options["magnitude"]
+        self.width = options["width"]
 
-        super().__init__(position_start, position_end, self.color, self.width)
+        self.color = options['color']
+
+        super().__init__(options)
 
     def get_perpendicular_slope(self):
         slope = self.get_slope()

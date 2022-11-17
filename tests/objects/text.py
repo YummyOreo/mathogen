@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 
-from mathogen.mathogen import Surface, Text, TextOutline, Tex, TexFont
+from mathogen.mathogen import Surface, Text, Tex
 
 '''
 Test for the creating, and rendering of text and LaTeX
@@ -16,7 +16,8 @@ class TextTest(Surface):
 
         This also rotates it 10 radians
         '''
-        tex_text = Tex([0.1, 0.1], "$e = mc^2$", font=TexFont(size=0.1)).rotate(10)
+        tex_text = Tex({"position": [0.1, 0.1], "text": "$e = mc^2$", "font":{"size": 0.1}}).rotate(10)
+        # tex_text = Tex({"position": [0.1, 0.1], "text": "$e = mc^2$"}).rotate(10)
 
         '''
         This makes a Text object
@@ -24,11 +25,11 @@ class TextTest(Surface):
 
         this also rotates it 10 radians
         '''
-        text = Text([0.5, 0.5], "This is a test").rotate(10)
+        text = Text({"position": [0.5, 0.5], "text": "This is a test"}).rotate(10)
         '''
         This adds a blue outline to the text
         '''
-        text.add_outline(TextOutline())
+        text.add_outline()
 
         '''
         Renders both

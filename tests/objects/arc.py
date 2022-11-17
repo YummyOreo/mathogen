@@ -1,14 +1,14 @@
 import sys
 sys.path.append("..")
 
-from mathogen.mathogen import Surface, BLUE, Line, RED
+from mathogen.mathogen import Surface, RED, Arc
+import math
 
 class ArcTest(Surface):
     def construct(self):
         self.init(200, 200, "test.svg")
 
-        line_1 = Line([0.1, 0.1], [0.5, 0.5])
-        line_2 = Line([0.1, 0.5], [0.3, 0.1])
+        arc = Arc([0.5, 0.5], 320 * (math.pi/180), color=RED).rotate(90)
 
-        self.add(line_1, line_2)
+        self.add(arc)
 

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 import cairo
 
 from .object import Object
@@ -20,100 +20,57 @@ weight = {
         "bold": cairo.FONT_WEIGHT_BOLD
         }
 
-class Font:
-    def __init__(self, font: str = "sans", font_slant: str = "normal", font_weight: str= "bold", font_size: float = 0.05):
-        '''
-        Defines the font for a Text object
-
-            font (str): The font family of the text
-                Default: "sans"
-            font_slant (str): How slanted the font it
-                Options:
-                    "normal"
-                    "italic"
-                Default: "normal"
-            font_weight (str): How weighted the font is
-                Options:
-                    "bold"
-                    "normal"
-                Default: "bold"
-            font_size (float): How big the font is
-                Default: 0.05
-        '''
-        self.font = font
-        self.font_size = font_size
-        self.font_slant = slant[font_slant]
-        self.font_weight = weight[font_weight]
-
-class TextOutline:
-    def __init__(self, outline_width: float = 0.002, outline_color: List[float] = BLUE):
-        '''
-        Draws the outline for a Text object
-
-            outline_width (float): The width of the outline
-                Default: 0.002
-            outline_color ([R: float, G: float, B: float, A: float]): The color of the outline
-                Default: [0.235294118, 0.858823529, 0.82745098, 1] (BLUE)
-        '''
-        self.outline_width = outline_width
-        self.outline_color = outline_color
-
-    def render(self, surface):
-        '''
-        Renders the outline given a surface
-        !! Important: !!
-            You have to render the Text first, then call this
-        '''
-        context: cairo.Context = surface.context
-        surface.set_color(self.outline_color)
-
-        context.set_line_width(self.outline_width)
-
-        context.stroke()
-
 class Text(Object):
-    def __init__(self, position: List[float], text: str, font: Optional[Font] = None, color: List[float] = BLACK):
+    def __init__(self, user_options):
         '''
-        For drawing text to the screen. Not math text, see Tex
-
-            position ([X: float, Y: float]): The position at which the text will be drawn
-
-            text (str): The text that will be drawn to the screen
-
-            font (Font): The font options that will be used when drawing the text to the screen
-                Default: The default Font object arguments
-
-            color ([R: float, G: float, B: float, A: float]): The color of the text
-                Default: [0, 0, 0, 1] (BLACK)
+        user_options = {
+                "position": List[float],
+                "text": str,
+                font: {} = {
+                    "font_face": str = "sans",
+                    "slant": str = "normal",
+                    "weight": str = "bold",
+                    "size": int = 0.05
+                    }
+                "color": List[float] = BLACK
+                }
         '''
-        self.position = position
-        self.text = text
+        options: Any = {"color": BLACK}
+        font = { "font_face": "sans", "slant": "normal", "weight": "bold", "size": 0.05}
+        options.update(user_options)
+        if not ("font" in options):
+            options["font"] = {}
+        options["font"].update(font)
+        options.update(user_options)
 
-        if not font:
-            font = Font()
-        self.font = font
+        self.position = options["position"]
+        self.text = options["text"]
 
-        self.color = color
+        self.font = options["font"]
+        self.font["slant"] = slant[self.font["slant"]]
+        self.font["weight"] = weight[self.font["weight"]]
+
+        self.color = options["color"]
 
         self.outline = None
         self.radians = None
 
-        super().__init__(position, color)
+        super().__init__(self.position, self.color)
 
-    def add_outline(self, outline: TextOutline):
+    def add_outline(self, outline_options = {}):
         '''
-        Adds a outline to the text. This should be done before rendering
-
-            outline: The outline objcet to be used when rendering, see TextOutline
+        user_options = {
+                "width": float = 0.002,
+                "color": List[float] = BLUE
+                }
         '''
+        outline = {"width": 0.002, "color": BLUE}
+        outline.update(outline_options)
         self.outline = outline
         return self
 
-    def rotate(self, degrees: Optional[float] = None, radians: Optional[float] = None):
-        if radians:
-            self.radians = radians
-        elif degrees:
-            self.radians = degrees * (math.pi / 180)
+    def rotate(self, degrees: float):
+        self.radians = degrees * (math.pi / 180)
         return self
 
     def render(self, surface):
@@ -128,8 +85,8 @@ class Text(Object):
         if self.radians:
             context.rotate(self.radians)
 
-        context.select_font_face(self.font.font, self.font.font_slant, self.font.font_weight)
-        context.set_font_size(self.font.font_size)
+        context.select_font_face(self.font["font_face"], self.font["slant"], self.font["weight"])
+        context.set_font_size(self.font["size"])
 
         surface.move_to(self.position)
 
@@ -138,57 +95,56 @@ class Text(Object):
         context.fill_preserve()
 
         if self.outline:
-            self.outline.render(surface)
+            self.render_outline(surface)
 
         context.restore()
 
-class TexFont:
-    def __init__(self, font: str = "serif", size: float = 0.5):
-        '''
-        Defines the font for a Tex object (Math Text)
+    def render_outline(self, surface):
+        if not self.outline: return
+        context: cairo.Context = surface.context
+        surface.set_color(self.outline["color"])
 
-            font (str): The font family of the text
-                Default: "serif"
-            size (float): How big the font is
-                Default: 0.5
-        '''
-        self.font = font
-        self.width = math.sqrt(size) / 2
-        self.heigh = math.sqrt(size) / 2
+        context.set_line_width(self.outline["width"])
+
+        context.stroke()
 
 class Tex(Object):
-    def __init__(self, position: List[float], text: str, font: Optional[TexFont] = None, color: List[float] = BLUE):
+    def __init__(self, user_options):
         '''
-        Renders LaTeX to the screen using MatPlotLib.
-
-            position ([X: float, Y: float]): The position at which the text will be drawn
-
-            text (str): the text to be darwn
-
-            font (TexFont): The font options that will be used when drawing the text to the screen
-                Default: The default TexFont object arguments
-
-            color ([R: float, G: float, B: float, A: float]): The color of the text
-                Default: [0.235294118, 0.858823529, 0.82745098, 1] (BLUE)
+        user_options = {
+                "position": List[float],
+                "text": str,
+                font: {} = {
+                    "font_face": str = "serif",
+                    "size": int = 0.5
+                    }
+                "color": List[float] = BLUE
+                }
         '''
-        self.position = position
-        self.text = text
+        options: Any = {"color": BLACK}
+        font = { "font_face": "serif", "size": 0.05}
+        options.update(user_options)
+        if not ("font" in options):
+            options["font"] = {}
+        options["font"].update(font)
 
-        if not font:
-            font = TexFont()
-        self.font = font
+        self.position = options["position"]
+        self.text = options["text"]
 
-        self.color = color
+        self.font = options["font"]
+        self.font["width"] = math.sqrt(self.font["size"]) / 2
+        self.font["height"] = self.font["width"]
 
+        self.color = options["color"]
+
+        self.outline = None
         self.radians = None
 
-        super().__init__(position, color)
+        super().__init__(self.position, self.color)
 
-    def rotate(self, degrees: Optional[float] = None, radians: Optional[float] = None):
-        if radians:
-            self.radians = radians
-        elif degrees:
-            self.radians = degrees * (math.pi / 180)
+
+    def rotate(self, degrees: float):
+        self.radians = degrees * (math.pi / 180)
         return self
 
     def render(self, surface):
@@ -197,15 +153,15 @@ class Tex(Object):
         '''
         create_temp()
 
-        textFont = font_manager.FontProperties(size=30, family=self.font.font, math_fontfamily="cm")
+        textFont = font_manager.FontProperties(size=30, family=self.font["font_face"], math_fontfamily="cm")
         mathtext.math_to_image(self.text, f"{TEMP_FILE_FOLDER}tex.temp", prop=textFont, dpi=300, format="png", color=self.color)
 
         image_surface = cairo.ImageSurface.create_from_png(f"{TEMP_FILE_FOLDER}tex.temp")
         img_height = image_surface.get_height()
         img_width = image_surface.get_width()
 
-        width_ratio = float(self.font.width) / float(img_width)
-        height_ratio = float(self.font.heigh) / float(img_height)
+        width_ratio = float(self.font["width"]) / float(img_width)
+        height_ratio = float(self.font["height"]) / float(img_height)
         scale_xy = min(height_ratio, width_ratio)
 
         # scale image and add it

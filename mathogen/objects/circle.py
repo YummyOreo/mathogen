@@ -1,53 +1,49 @@
 import math
-from typing import List, Optional
+from typing import Any
 
 import cairo
 
 from .object import Object
 from ..utils.color import BLACK, BLUE
 
-class CircleOutline:
-    def __init__(self, color: List[float] = BLUE, width: float = 0.3):
-        self.width = width
-        self.color = color
-
-    def render(self, surface):
-        context: cairo.Context = surface.context
-
-        context.save()
-        surface.set_color(self.color)
-
-        context.identity_matrix()
-
-        context.set_line_width(self.width)
-
-
-        context.stroke()
-        context.restore()
-
 class Circle(Object):
-    def __init__(self, position: List[float], width: float, height: float, color: List[float] = BLACK):
-        self.position = position
-        self.width = width
-        self.height = height
-        self.colo = color
+    def __init__(self, user_options):
+        '''
+        user_options = {
+                "position": List[float],
+                "width": float,
+                "height": float,
+                "color": List[float] = BLACK
+                }
+        '''
+        options: Any = {"color": BLACK}
+        options.update(user_options)
+
+        self.position = options["position"]
+        self.width = options["width"]
+        self.height = options["height"]
+        self.color = options["color"]
 
         self.outline = None
         self.radians = None
 
-        super().__init__(position, color, height, width)
+        super().__init__(self.position, self.color, self.height, self.width)
 
-    def add_outline(self, outline: Optional[CircleOutline] = None):
-        if not outline:
-            outline = CircleOutline()
+    def add_outline(self, outline_options = {}):
+        '''
+        user_options = {
+                "width": float = 0.3,
+                "color": List[float] = BLUE
+                }
+        '''
+        outline = {"color": BLUE, "width": 0.3}
+        outline.update(outline_options)
+
         self.outline = outline
         return self
 
-    def rotate(self, degrees: Optional[float] = None, radians: Optional[float] = None):
-        if radians:
-            self.radians = radians
-        elif degrees:
-            self.radians = degrees * (math.pi / 180)
+    def rotate(self, degrees: float):
+        self.radians = degrees * (math.pi / 180)
         return self
 
     def render(self, surface):
@@ -72,4 +68,19 @@ class Circle(Object):
         context.restore()
 
         if self.outline:
-            self.outline.render(surface)
+            self.render_outline(surface)
+
+    def render_outline(self, surface):
+        if not self.outline: return
+        context: cairo.Context = surface.context
+
+        context.save()
+        surface.set_color(self.outline["color"])
+
+        context.identity_matrix()
+
+        context.set_line_width(self.outline["width"])
+
+
+        context.stroke()
+        context.restore()

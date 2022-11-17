@@ -5,8 +5,8 @@ from objects.circle import CircleTest
 from objects.arc import ArcTest
 
 if __name__ == '__main__':
-    # TextTest()
+    TextTest()
     # RectTest()
     # LineTests()
     # CircleTest()
-    ArcTest()
+    # ArcTest()
