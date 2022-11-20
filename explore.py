@@ -430,3 +430,4 @@ with cairo.SVGSurface("example.svg", 1000, 1000) as surface:
     curve_between(context, [0.1, 0.1], [1, 0.2], 0.5)
 
     # rect_curve(context, [0.3, 0.6], 0.2, 0.2, 0.05, [0, 0, 0, 1], [244, 255, 0, 1])
+

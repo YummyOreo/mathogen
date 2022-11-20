@@ -5,3 +5,4 @@ from .objects.rect import Rect, RoundRect
 from .objects.line import Line, CurveBetween
 from .objects.circle import Circle
 from .objects.arc import Arc
+from .math.grid import Grid
